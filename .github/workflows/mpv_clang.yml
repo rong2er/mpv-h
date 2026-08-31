@@ -81,7 +81,9 @@ jobs:
 
       - name: Building mpv
         run: |
-          ninja -C build_$BIT update
+          find . -name "index.lock" -delete 2>/dev/null || true
+          ninja -C build_$BIT -j 1 update || true
+          find . -name "index.lock" -delete 2>/dev/null || true
           ninja -C build_$BIT mpv
 
       - name: Packaging mpv
