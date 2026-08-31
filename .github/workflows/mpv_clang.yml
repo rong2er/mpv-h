@@ -79,6 +79,23 @@ jobs:
           cmake -DTARGET_ARCH=${{ env.arch }}-w64-mingw32 -DCOMPILER_TOOLCHAIN=clang -DCMAKE_INSTALL_PREFIX=$PWD/clang_root -DMINGW_INSTALL_PREFIX=$PWD/build_$BIT/$BIT-w64-mingw32 -DSINGLE_SOURCE_LOCATION=$PWD/src_packages -DRUSTUP_LOCATION=$PWD/clang_root/install_rustup -DENABLE_CCACHE=ON -DCLANG_PACKAGES_LTO=ON -G Ninja --fresh -B build_$BIT -S $PWD
           ninja -C build_$BIT download || true
 
+      # 注入 Yaozhi 全套特调源码补丁集
+      - name: Apply Yaozhi Enhanced Patches
+        run: |
+          echo "==> 正在拉取 Yaozhi 专属特调补丁集..."
+          git clone --depth 1 https://github.com/Yaozhil/mpv-Yaozhi.git yaozhi_src || true
+          if [ -d "yaozhi_src/build" ]; then
+            echo "==> 正在将 Yaozhi 补丁注入 MPV 与 FFmpeg 源码树..."
+            for patch_dir in atmos audio-layout av3a core-migration dolby-vision hdr-pgs; do
+              if [ -d "yaozhi_src/build/$patch_dir" ]; then
+                echo "--> 正在应用补丁: $patch_dir"
+                find "yaozhi_src/build/$patch_dir" -name "*.patch" -exec git -C src_packages/mpv apply -v {} + 2>/dev/null || true
+                find "yaozhi_src/build/$patch_dir" -name "*.patch" -exec git -C src_packages/ffmpeg apply -v {} + 2>/dev/null || true
+              fi
+            done
+          fi
+          echo "==> 补丁注入完毕！"
+
       - name: Building mpv
         run: |
           find . -name "index.lock" -delete 2>/dev/null || true
