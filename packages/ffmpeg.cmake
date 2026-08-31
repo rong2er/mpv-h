@@ -29,7 +29,6 @@ ExternalProject_Add(ffmpeg
         x264
         ${ffmpeg_x265}
         libxml2
-        libvpl
         libopenmpt
         libjxl
         libplacebo
@@ -92,7 +91,6 @@ ExternalProject_Add(ffmpeg
         --enable-libmysofa
         --enable-libssh
         --enable-libsrt
-        --enable-libvpl
         --enable-libjxl
         --enable-libplacebo
         --enable-libzvbi
