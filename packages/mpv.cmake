@@ -22,12 +22,13 @@ ExternalProject_Add(mpv
         spirv-cross
         vapoursynth
         libsdl2
+        subrandr
         libsixel
         curl
     GIT_REPOSITORY https://github.com/mpv-player/mpv.git
     SOURCE_DIR ${SOURCE_LOCATION}
     GIT_REMOTE_NAME origin
-    GIT_TAG v0.41.0
+    GIT_TAG 304426c
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} CONF=1 meson setup <BINARY_DIR> <SOURCE_DIR>
         --prefix=${MINGW_INSTALL_PREFIX}
@@ -55,8 +56,10 @@ ExternalProject_Add(mpv
         -Dspirv-cross=enabled
         -Dvulkan=enabled
         -Dvapoursynth=enabled
+        -Dsubrandr=enabled
         -Dsixel=enabled
         ${mpv_gl}
+        -Dlibcurl=enabled
         -Dc_args='-Wno-error=int-conversion'
     BUILD_COMMAND ${EXEC} LTO_JOB=1 PDB=1 ninja -C <BINARY_DIR>
     INSTALL_COMMAND ""
