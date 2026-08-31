@@ -37,26 +37,42 @@ jobs:
         with:
           ref: master
 
+      # 从昨晚成功的 llvm_clang 任务中直接下载 2.37GB 工具链底座
+      - name: Download toolchain artifact from llvm_clang
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: llvm_clang.yml
+          name: toolchain
+          path: clang_root
+        continue-on-error: true
+
       - name: Loading clang sysroot cache
         uses: actions/cache/restore@main
         with:
           path: clang_root
           key: clang_root-${{ github.run_id }}
-          restore-keys: clang_root
+          restore-keys: |
+            clang_root
+            ${{ secrets.CACHE_VERSION }}-clang_root
 
       - name: Loading repository cache
         uses: actions/cache/restore@main
         with:
           path: src_packages
           key: repository-${{ github.run_id }}
-          restore-keys: repository
+          restore-keys: |
+            repository
+            ${{ secrets.CACHE_VERSION }}-repository
 
       - name: Loading toolchain cache
         uses: actions/cache/restore@main
         with:
           path: build_${{ matrix.bit }}
           key: clang-${{ matrix.bit }}_toolchain-${{ github.run_id }}
-          restore-keys: clang-${{ matrix.bit }}_toolchain
+          restore-keys: |
+            clang-${{ matrix.bit }}_toolchain
+            ${{ secrets.CACHE_VERSION }}-clang-${{ matrix.bit }}_toolchain
 
       - name: Configuring CMake & Downloading source
         run: |
