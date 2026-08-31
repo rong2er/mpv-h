@@ -39,8 +39,7 @@ ExternalProject_Add(ffmpeg
         svtav1
         dav1d
         vapoursynth
-        ${ffmpeg_uavs3d}
-        ${ffmpeg_davs2}
+        uavs3d
         rubberband
         libva
         openal-soft
@@ -86,8 +85,7 @@ ExternalProject_Add(ffmpeg
         --enable-libaom
         --enable-libsvtav1
         --enable-libdav1d
-        ${ffmpeg_davs2_cmd}
-        ${ffmpeg_uavs3d_cmd}
+        --enable-libuavs3d
         --enable-libzimg
         --enable-openssl
         --enable-libxml2
@@ -115,7 +113,7 @@ ExternalProject_Add(ffmpeg
         --disable-decoder=libaom_av1
         ${ffmpeg_lto}
         --extra-cflags='-Wno-error=int-conversion'
-        "--extra-libs='${ffmpeg_extra_libs}'" # -lstdc++ / -lc++ needs by libjxl and shaderc
+        "--extra-libs='${ffmpeg_extra_libs}'"
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
