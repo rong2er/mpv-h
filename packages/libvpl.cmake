@@ -1,7 +1,6 @@
 ExternalProject_Add(libvpl
     GIT_REPOSITORY https://github.com/intel/libvpl.git
     SOURCE_DIR ${SOURCE_LOCATION}
-    GIT_CLONE_FLAGS "--filter=tree:0"
     GIT_REMOTE_NAME origin
     GIT_TAG v2.10.0
     UPDATE_COMMAND ""
