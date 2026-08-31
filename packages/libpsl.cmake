@@ -1,6 +1,6 @@
 ExternalProject_Add(libpsl
     GIT_REPOSITORY https://github.com/rockdaboot/libpsl.git
-     GIT_TAG 0.21.5
+    GIT_TAG 0.21.5
     SOURCE_DIR ${SOURCE_LOCATION}
     GIT_CLONE_POST_COMMAND "sparse-checkout set --no-cone /* !/fuzz !tests !tools tools/meson.build"
     GIT_REMOTE_NAME origin
@@ -22,4 +22,3 @@ ExternalProject_Add(libpsl
 
 force_rebuild_git(libpsl)
 force_meson_configure(libpsl)
-cleanup(libpsl install)
