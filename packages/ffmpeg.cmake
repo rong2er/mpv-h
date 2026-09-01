@@ -43,10 +43,10 @@ ExternalProject_Add(ffmpeg
         rubberband
         libva
         openal-soft
-    GIT_REPOSITORY https://github.com/llawsxx/FFmpeg.git
+    GIT_REPOSITORY https://github.com/FFmpeg/FFmpeg.git
     SOURCE_DIR ${SOURCE_LOCATION}
     GIT_REMOTE_NAME origin
-    GIT_TAG 
+    GIT_TAG 8ad7cc6ccd570898fe3b1df3a6817eacdc64fa8e
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} CONF=1 <SOURCE_DIR>/configure
         --cross-prefix=${TARGET_ARCH}-
