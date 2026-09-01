@@ -29,7 +29,6 @@ ExternalProject_Add(ffmpeg
         x264
         ${ffmpeg_x265}
         libxml2
-        libvpl
         libopenmpt
         libjxl
         libplacebo
@@ -39,8 +38,7 @@ ExternalProject_Add(ffmpeg
         svtav1
         dav1d
         vapoursynth
-        ${ffmpeg_uavs3d}
-        ${ffmpeg_davs2}
+        uavs3d
         rubberband
         libva
         openal-soft
@@ -85,15 +83,13 @@ ExternalProject_Add(ffmpeg
         --enable-libaom
         --enable-libsvtav1
         --enable-libdav1d
-        ${ffmpeg_davs2_cmd}
-        ${ffmpeg_uavs3d_cmd}
+        --enable-libuavs3d
         --enable-libzimg
         --enable-openssl
         --enable-libxml2
         --enable-libmysofa
         --enable-libssh
         --enable-libsrt
-        --enable-libvpl
         --enable-libjxl
         --enable-libplacebo
         --enable-libzvbi
@@ -117,7 +113,7 @@ ExternalProject_Add(ffmpeg
         --enable-decoder=dolby_e
         ${ffmpeg_lto}
         --extra-cflags='-Wno-error=int-conversion -DPRESERVE_OLD_COLOR_METRICS=1'
-        "--extra-libs='${ffmpeg_extra_libs}'" # -lstdc++ / -lc++ needs by libjxl and shaderc
+        "--extra-libs='${ffmpeg_extra_libs}'"
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
@@ -125,4 +121,3 @@ ExternalProject_Add(ffmpeg
 
 force_rebuild_git(ffmpeg)
 cleanup(ffmpeg install)
-
