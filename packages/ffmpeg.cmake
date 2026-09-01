@@ -46,6 +46,7 @@ ExternalProject_Add(ffmpeg
         openal-soft
     GIT_REPOSITORY https://github.com/FFmpeg/FFmpeg.git
     SOURCE_DIR ${SOURCE_LOCATION}
+    GIT_TAG 8ad7cc6ccd570898fe3b1df3a6817eacdc64fa8e
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} CONF=1 <SOURCE_DIR>/configure
         --cross-prefix=${TARGET_ARCH}-
@@ -111,23 +112,11 @@ ExternalProject_Add(ffmpeg
         --disable-vdpau
         --disable-videotoolbox
         --disable-decoder=libaom_av1
-                --enable-dovi
-                --enable-parser=dovi
-                --enable-decoder=dolby_e
+        --enable-dovi
+        --enable-parser=dovi
+        --enable-decoder=dolby_e
         ${ffmpeg_lto}
-        
-    param($m)
-    $prefix = $m.Groups[1].Value
-    $quote  = $m.Groups[2].Value
-    # 确保没加过
-    if ($prefix -notmatch "PRESERVE_OLD_COLOR_METRICS") {
-        # 如果 prefix 已经带空格结尾就不加额外空格
-        if ($prefix -match "\s$") { return "$($prefix)PRESERVE_OLD_COLOR_METRICS=1$quote" }
-        else { return "$($prefix) -DPRESERVE_OLD_COLOR_METRICS=1$quote" }
-    } else {
-        return $m.Value
-    }
-
+        --extra-cflags='-Wno-error=int-conversion -DPRESERVE_OLD_COLOR_METRICS=1'
         "--extra-libs='${ffmpeg_extra_libs}'" # -lstdc++ / -lc++ needs by libjxl and shaderc
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
@@ -136,3 +125,4 @@ ExternalProject_Add(ffmpeg
 
 force_rebuild_git(ffmpeg)
 cleanup(ffmpeg install)
+
