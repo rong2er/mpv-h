@@ -63,8 +63,8 @@ ExternalProject_Add(mpv
         -Dsixel=enabled
         ${mpv_gl}
         -Dlibcurl=enabled
-        -Ddovi=enabled
-        -Dhdr10plus=enabled
+        -Ddovi=auto
+        -Dhdr10plus=auto
         -Dc_args='-Wno-error=int-conversion -DENABLE_YAOZHI_PATCHES=1 -DENABLE_DUAL_LAYER_DOVI=1 -DPRESERVE_OLD_TONEMAP=1 -DOLD_GAMUT_COMPRESSION=1'
     BUILD_COMMAND ${EXEC} LTO_JOB=1 PDB=1 ninja -C <BINARY_DIR>
     INSTALL_COMMAND ""
