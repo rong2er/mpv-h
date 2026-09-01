@@ -31,13 +31,12 @@ jobs:
           git config --global pull.rebase true
           git config --global rebase.autoStash true
           git config --global fetch.prune true
-          git config --global --add safe.directory $PWD
+          git config --global --add safe.directory "*"
 
       - uses: actions/checkout@main
         with:
           ref: master
 
-      # 从昨晚成功的 llvm_clang 任务中直接下载 2.37GB 工具链底座
       - name: Download toolchain artifact from llvm_clang
         uses: dawidd6/action-download-artifact@v6
         with:
@@ -79,22 +78,91 @@ jobs:
           cmake -DTARGET_ARCH=${{ env.arch }}-w64-mingw32 -DCOMPILER_TOOLCHAIN=clang -DCMAKE_INSTALL_PREFIX=$PWD/clang_root -DMINGW_INSTALL_PREFIX=$PWD/build_$BIT/$BIT-w64-mingw32 -DSINGLE_SOURCE_LOCATION=$PWD/src_packages -DRUSTUP_LOCATION=$PWD/clang_root/install_rustup -DENABLE_CCACHE=ON -DCLANG_PACKAGES_LTO=ON -G Ninja --fresh -B build_$BIT -S $PWD
           ninja -C build_$BIT download || true
 
-      # 注入 Yaozhi 全套特调源码补丁集
-      - name: Apply Yaozhi Enhanced Patches
+      - name: Apply Yaozhi Enhanced Patches (Robust Multi-Branch)
         run: |
-          echo "==> 正在拉取 Yaozhi 专属特调补丁集..."
-          git clone --depth 1 https://github.com/Yaozhil/mpv-Yaozhi.git yaozhi_src || true
-          if [ -d "yaozhi_src/build" ]; then
-            echo "==> 正在将 Yaozhi 补丁注入 MPV 与 FFmpeg 源码树..."
-            for patch_dir in atmos audio-layout av3a core-migration dolby-vision hdr-pgs; do
-              if [ -d "yaozhi_src/build/$patch_dir" ]; then
-                echo "--> 正在应用补丁: $patch_dir"
-                find "yaozhi_src/build/$patch_dir" -name "*.patch" -exec git -C src_packages/mpv apply -v {} + 2>/dev/null || true
-                find "yaozhi_src/build/$patch_dir" -name "*.patch" -exec git -C src_packages/ffmpeg apply -v {} + 2>/dev/null || true
-              fi
-            done
+          set +e
+          echo "==============================="
+          echo "==> Yaozhi 补丁注入开始 (全分支扫描模式)"
+          echo "==============================="
+          YAOZHI_REPO="https://github.com/Yaozhil/mpv-Yaozhi.git"
+          YAOZHI_DIR="yaozhi_src"
+          BUILD_DIR_FOUND=""
+          for br in master main build patches custom dev; do
+            echo "--> 尝试分支: [$br]"
+            rm -rf "$YAOZHI_DIR"
+            git clone --depth 1 -b "$br" "$YAOZHI_REPO" "$YAOZHI_DIR" 2>/dev/null
+            if [ -d "$YAOZHI_DIR/build" ]; then
+              echo "==> 在分支 [$br] 找到 build/ 目录！"
+              BUILD_DIR_FOUND="$YAOZHI_DIR/build"
+              break
+            fi
+          done
+          if [ -z "$BUILD_DIR_FOUND" ]; then
+            echo "==> 分支扫描失败，执行深克隆全仓库递归查找 .patch 集合..."
+            rm -rf "$YAOZHI_DIR"
+            git clone --depth 50 "$YAOZHI_REPO" "$YAOZHI_DIR" 2>/dev/null
+            BUILD_DIR_FOUND="$(find "$YAOZHI_DIR" -type d -name build 2>/dev/null | head -n1)"
+            [ -n "$BUILD_DIR_FOUND" ] && echo "==> 递归发现 build 目录: $BUILD_DIR_FOUND"
           fi
-          echo "==> 补丁注入完毕！"
+          if [ -z "$BUILD_DIR_FOUND" ]; then
+            BUILD_DIR_FOUND="$(find "$YAOZHI_DIR" -maxdepth 3 -type d $ -name "patches" -o -name "patch" $ 2>/dev/null | head -n1)"
+            [ -n "$BUILD_DIR_FOUND" ] && echo "==> 找到 patches 目录: $BUILD_DIR_FOUND"
+          fi
+          if [ -n "$BUILD_DIR_FOUND" ] && [ -d "$BUILD_DIR_FOUND" ]; then
+            echo "==> 开始注入 Yaozhi 补丁到 mpv / ffmpeg / libplacebo..."
+            for patch_dir in "$BUILD_DIR_FOUND"/*/; do
+              dir_name="$(basename "$patch_dir")"
+              [ ! -d "$patch_dir" ] && continue
+              patch_list="$(find "$patch_dir" -maxdepth 3 -name "*.patch" 2>/dev/null)"
+              patch_count="$(echo "$patch_list" | grep -cv '^$' || true)"
+              [ "$patch_count" -eq 0 ] && continue
+              echo "----> 补丁集 [$dir_name] 共 $patch_count 个"
+              echo "$patch_list" | while IFS= read -r p; do
+                [ -z "$p" ] && continue
+                pf="$(basename "$p")"
+                applied=0
+                if git -C src_packages/mpv apply --check "$p" 2>/dev/null; then
+                  echo "      [mpv   ] + $pf"
+                  git -C src_packages/mpv apply -v "$p" 2>/dev/null && applied=1
+                fi
+                if git -C src_packages/ffmpeg apply --check "$p" 2>/dev/null; then
+                  echo "      [ffmpeg] + $pf"
+                  git -C src_packages/ffmpeg apply -v "$p" 2>/dev/null && applied=1
+                fi
+                if [ -d "src_packages/libplacebo/.git" ] && git -C src_packages/libplacebo apply --check "$p" 2>/dev/null; then
+                  echo "      [libplc] + $pf"
+                  git -C src_packages/libplacebo apply -v "$p" 2>/dev/null && applied=1
+                fi
+                [ $applied -eq 0 ] && echo "      [skip  ] - $pf"
+              done
+            done
+            echo "==> 补丁注入完毕"
+          else
+            echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+            echo "!!! 严重警告：找不到 Yaozhi 补丁目录，所有高级特性将缺失！"
+            echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+            ls -la "$YAOZHI_DIR" 2>/dev/null
+          fi
+
+      - name: Upgrade core packages to latest master HEAD
+        run: |
+          set +e
+          echo "==> 升级核心包源码到最新版本"
+          for pkg in ffmpeg mpv libplacebo libbluray; do
+            dir="src_packages/$pkg"
+            [ ! -d "$dir/.git" ] && echo "--> [$pkg] skip (no git)" && continue
+            echo "--> [$pkg] fetch latest master/main ..."
+            git -C "$dir" fetch --depth 1 origin master 2>/dev/null
+            if git -C "$dir" rev-parse FETCH_HEAD >/dev/null 2>&1; then
+              git -C "$dir" reset --hard FETCH_HEAD 2>/dev/null
+            else
+              git -C "$dir" fetch --depth 1 origin main 2>/dev/null
+              git -C "$dir" reset --hard FETCH_HEAD 2>/dev/null || true
+            fi
+            sha="$(git -C "$dir" rev-parse --short HEAD 2>/dev/null)"
+            echo "    ==> [$pkg] HEAD: $sha"
+          done
+          echo "==> 源码升级完毕"
 
       - name: Building mpv
         run: |
