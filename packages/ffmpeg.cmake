@@ -120,4 +120,3 @@ ExternalProject_Add(ffmpeg
 )
 
 force_rebuild_git(ffmpeg)
-cleanup(ffmpeg install)
