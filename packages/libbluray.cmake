@@ -20,8 +20,6 @@ ExternalProject_Add(libbluray
         -Dbdj_jar=disabled
         -Dfreetype=enabled
         -Dlibxml2=enabled
-        -Dfontconfig=enabled
-        -Dudfread=enabled
         "-Dc_args='-Ddec_init=libbluray_dec_init -Ddir_open_default=libbluray_dir_open_default -Dfile_open_default=libbluray_file_open_default -DENABLE_BLURAY_MENU_FULL=1 -DHAVE_UDFREAD=1'"
     BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>
     INSTALL_COMMAND ${EXEC} ninja -C <BINARY_DIR> install
