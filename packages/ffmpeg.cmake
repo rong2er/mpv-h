@@ -39,6 +39,7 @@ ExternalProject_Add(ffmpeg
         dav1d
         vapoursynth
         uavs3d
+        davs2
         rubberband
         libva
         openal-soft
@@ -59,6 +60,7 @@ ExternalProject_Add(ffmpeg
         --enable-runtime-cpudetect
         --enable-gpl
         --enable-version3
+        --enable-nonfree
         --enable-avisynth
         --enable-vapoursynth
         --enable-libass
@@ -87,6 +89,7 @@ ExternalProject_Add(ffmpeg
         --enable-libsvtav1
         --enable-libdav1d
         --enable-libuavs3d
+        --enable-libdavs2
         --enable-libzimg
         --enable-openssl
         --enable-libxml2
@@ -111,8 +114,15 @@ ExternalProject_Add(ffmpeg
         --disable-vdpau
         --disable-videotoolbox
         --disable-decoder=libaom_av1
+        --enable-dovi
+        --enable-parser=dovi
+        --enable-decoder=dolby_e
+        --enable-decoder=av3a
+        --enable-demuxer=av3a
+        --enable-libdav1d
+        --enable-encoder=av3a
+        --extra-cflags='-Wno-error=int-conversion -DENABLE_DOVI_DECODE=1 -DENABLE_AV3A_PATCHES=1'
         ${ffmpeg_lto}
-        --extra-cflags='-Wno-error=int-conversion'
         "--extra-libs='${ffmpeg_extra_libs}'"
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
