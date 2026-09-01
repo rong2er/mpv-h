@@ -43,12 +43,10 @@ ExternalProject_Add(ffmpeg
         rubberband
         libva
         openal-soft
-    GIT_REPOSITORY https://github.com/FFmpeg/FFmpeg.git
+    GIT_REPOSITORY https://github.com/llawsxx/FFmpeg.git
     SOURCE_DIR ${SOURCE_LOCATION}
     GIT_REMOTE_NAME origin
-    GIT_TAG ad9f2cb17f
-    GIT_CLONE_FLAGS "--sparse"
-    GIT_CLONE_POST_COMMAND "sparse-checkout set --no-cone /* !tests/ref/fate"
+    GIT_TAG 
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} CONF=1 <SOURCE_DIR>/configure
         --cross-prefix=${TARGET_ARCH}-
