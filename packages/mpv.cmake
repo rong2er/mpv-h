@@ -6,6 +6,8 @@ ExternalProject_Add(mpv
         lcms2
         libarchive
         libass
+        libbluray
+        fontconfig
         libdvdnav
         libdvdread
         libiconv
@@ -49,6 +51,7 @@ ExternalProject_Add(mpv
         -Dlibarchive=enabled
         -Dlibbluray=enabled
         -Ddvdnav=enabled
+        -Ddvdread=enabled
         -Duchardet=enabled
         -Drubberband=enabled
         -Dlcms2=enabled
@@ -60,7 +63,9 @@ ExternalProject_Add(mpv
         -Dsixel=enabled
         ${mpv_gl}
         -Dlibcurl=enabled
-        -Dc_args='-Wno-error=int-conversion'
+        -Ddovi=enabled
+        -Dhdr10plus=enabled
+        -Dc_args='-Wno-error=int-conversion -DENABLE_YAOZHI_PATCHES=1 -DENABLE_DUAL_LAYER_DOVI=1'
     BUILD_COMMAND ${EXEC} LTO_JOB=1 PDB=1 ninja -C <BINARY_DIR>
     INSTALL_COMMAND ""
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
