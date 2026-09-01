@@ -44,7 +44,10 @@ ExternalProject_Add(ffmpeg
         openal-soft
     GIT_REPOSITORY https://github.com/FFmpeg/FFmpeg.git
     SOURCE_DIR ${SOURCE_LOCATION}
-    GIT_TAG 8ad7cc6ccd570898fe3b1df3a6817eacdc64fa8e
+    GIT_REMOTE_NAME origin
+    GIT_TAG 2576e09
+    GIT_CLONE_FLAGS "--sparse"
+    GIT_CLONE_POST_COMMAND "sparse-checkout set --no-cone /* !tests/ref/fate"
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} CONF=1 <SOURCE_DIR>/configure
         --cross-prefix=${TARGET_ARCH}-
