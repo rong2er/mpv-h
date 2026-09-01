@@ -29,6 +29,7 @@ ExternalProject_Add(ffmpeg
         x264
         ${ffmpeg_x265}
         libxml2
+        libvpl
         libopenmpt
         libjxl
         libplacebo
@@ -38,15 +39,13 @@ ExternalProject_Add(ffmpeg
         svtav1
         dav1d
         vapoursynth
-        uavs3d
-        davs2
+        ${ffmpeg_uavs3d}
+        ${ffmpeg_davs2}
         rubberband
         libva
         openal-soft
     GIT_REPOSITORY https://github.com/FFmpeg/FFmpeg.git
     SOURCE_DIR ${SOURCE_LOCATION}
-    GIT_REMOTE_NAME origin
-    GIT_TAG 8ad7cc6ccd570898fe3b1df3a6817eacdc64fa8e
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} CONF=1 <SOURCE_DIR>/configure
         --cross-prefix=${TARGET_ARCH}-
@@ -58,7 +57,6 @@ ExternalProject_Add(ffmpeg
         --enable-runtime-cpudetect
         --enable-gpl
         --enable-version3
-        --enable-nonfree
         --enable-avisynth
         --enable-vapoursynth
         --enable-libass
@@ -86,14 +84,15 @@ ExternalProject_Add(ffmpeg
         --enable-libaom
         --enable-libsvtav1
         --enable-libdav1d
-        --enable-libuavs3d
-        --enable-libdavs2
+        ${ffmpeg_davs2_cmd}
+        ${ffmpeg_uavs3d_cmd}
         --enable-libzimg
         --enable-openssl
         --enable-libxml2
         --enable-libmysofa
         --enable-libssh
         --enable-libsrt
+        --enable-libvpl
         --enable-libjxl
         --enable-libplacebo
         --enable-libzvbi
@@ -112,15 +111,28 @@ ExternalProject_Add(ffmpeg
         --disable-vdpau
         --disable-videotoolbox
         --disable-decoder=libaom_av1
-        --enable-dovi
-        --enable-parser=dovi
-        --enable-decoder=dolby_e
-        --extra-cflags='-Wno-error=int-conversion -DENABLE_DOVI_DECODE=1 -DENABLE_AV3A_PATCHES=1 -DPRESERVE_OLD_COLOR_METRICS=1'
+                --enable-dovi
+                --enable-parser=dovi
+                --enable-decoder=dolby_e
         ${ffmpeg_lto}
-        "--extra-libs='${ffmpeg_extra_libs}'"
+        
+    param($m)
+    $prefix = $m.Groups[1].Value
+    $quote  = $m.Groups[2].Value
+    # 确保没加过
+    if ($prefix -notmatch "PRESERVE_OLD_COLOR_METRICS") {
+        # 如果 prefix 已经带空格结尾就不加额外空格
+        if ($prefix -match "\s$") { return "$($prefix)PRESERVE_OLD_COLOR_METRICS=1$quote" }
+        else { return "$($prefix) -DPRESERVE_OLD_COLOR_METRICS=1$quote" }
+    } else {
+        return $m.Value
+    }
+
+        "--extra-libs='${ffmpeg_extra_libs}'" # -lstdc++ / -lc++ needs by libjxl and shaderc
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
 force_rebuild_git(ffmpeg)
+cleanup(ffmpeg install)
