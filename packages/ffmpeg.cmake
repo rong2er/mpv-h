@@ -117,9 +117,6 @@ ExternalProject_Add(ffmpeg
         --enable-dovi
         --enable-parser=dovi
         --enable-decoder=dolby_e
-        --enable-decoder=av3a
-        --enable-demuxer=av3a
-        --enable-encoder=av3a
         --extra-cflags='-Wno-error=int-conversion -DENABLE_DOVI_DECODE=1 -DENABLE_AV3A_PATCHES=1 -DPRESERVE_OLD_COLOR_METRICS=1'
         ${ffmpeg_lto}
         "--extra-libs='${ffmpeg_extra_libs}'"
