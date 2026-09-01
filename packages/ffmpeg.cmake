@@ -46,7 +46,7 @@ ExternalProject_Add(ffmpeg
     GIT_REPOSITORY https://github.com/FFmpeg/FFmpeg.git
     SOURCE_DIR ${SOURCE_LOCATION}
     GIT_REMOTE_NAME origin
-    GIT_TAG 2576e09
+    GIT_TAG ad9f2cb17f
     GIT_CLONE_FLAGS "--sparse"
     GIT_CLONE_POST_COMMAND "sparse-checkout set --no-cone /* !tests/ref/fate"
     UPDATE_COMMAND ""
@@ -119,9 +119,8 @@ ExternalProject_Add(ffmpeg
         --enable-decoder=dolby_e
         --enable-decoder=av3a
         --enable-demuxer=av3a
-        --enable-libdav1d
         --enable-encoder=av3a
-        --extra-cflags='-Wno-error=int-conversion -DENABLE_DOVI_DECODE=1 -DENABLE_AV3A_PATCHES=1'
+        --extra-cflags='-Wno-error=int-conversion -DENABLE_DOVI_DECODE=1 -DENABLE_AV3A_PATCHES=1 -DPRESERVE_OLD_COLOR_METRICS=1'
         ${ffmpeg_lto}
         "--extra-libs='${ffmpeg_extra_libs}'"
     BUILD_COMMAND ${MAKE}
