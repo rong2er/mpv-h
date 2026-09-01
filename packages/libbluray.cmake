@@ -2,6 +2,7 @@ ExternalProject_Add(libbluray
     DEPENDS
         libudfread
         freetype2
+        fontconfig
         libxml2
     GIT_REPOSITORY https://code.videolan.org/videolan/libbluray.git
     SOURCE_DIR ${SOURCE_LOCATION}
@@ -15,14 +16,16 @@ ExternalProject_Add(libbluray
         --cross-file=${MESON_CROSS}
         --buildtype=release
         --default-library=static
-        -Denable_tools=false
+        -Denable_tools=true
         -Dbdj_jar=disabled
         -Dfreetype=enabled
         -Dlibxml2=enabled
-        "-Dc_args='-Ddec_init=libbluray_dec_init -Ddir_open_default=libbluray_dir_open_default -Dfile_open_default=libbluray_file_open_default'"
+        -Dfontconfig=enabled
+        -Dudfread=enabled
+        "-Dc_args='-Ddec_init=libbluray_dec_init -Ddir_open_default=libbluray_dir_open_default -Dfile_open_default=libbluray_file_open_default -DENABLE_BLURAY_MENU_FULL=1 -DHAVE_UDFREAD=1'"
     BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>
     INSTALL_COMMAND ${EXEC} ninja -C <BINARY_DIR> install
-    COMMAND ${EXEC} sed -i [['s/-lbluray/-lbluray -lgdi32/']] ${MINGW_INSTALL_PREFIX}/lib/pkgconfig/libbluray.pc
+    COMMAND ${EXEC} sed -i [['s/-lbluray/-lbluray -lfontconfig -lgdi32/']] ${MINGW_INSTALL_PREFIX}/lib/pkgconfig/libbluray.pc
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
