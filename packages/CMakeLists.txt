@@ -38,12 +38,12 @@ list(APPEND ep
     brotli
     freetype2
     libudfread
+    fontconfig
     libbluray
     harfbuzz
     libsoxr
     graphengine
     libzimg
-    fontconfig
     libunibreak
     libass
     subrandr
