@@ -78,11 +78,12 @@ jobs:
           cmake -DTARGET_ARCH=${{ env.arch }}-w64-mingw32 -DCOMPILER_TOOLCHAIN=clang -DCMAKE_INSTALL_PREFIX=$PWD/clang_root -DMINGW_INSTALL_PREFIX=$PWD/build_$BIT/$BIT-w64-mingw32 -DSINGLE_SOURCE_LOCATION=$PWD/src_packages -DRUSTUP_LOCATION=$PWD/clang_root/install_rustup -DENABLE_CCACHE=ON -DCLANG_PACKAGES_LTO=ON -G Ninja --fresh -B build_$BIT -S $PWD
           ninja -C build_$BIT download || true
 
-      - name: Apply Yaozhi Enhanced Patches (Robust Multi-Branch)
+      # ========== Yaozhi 补丁注入（全分支扫描，新增AV3A/杜比/蓝光） ==========
+      - name: Apply Yaozhi Enhanced Patches (Robust)
         run: |
           set +e
           echo "==============================="
-          echo "==> Yaozhi 补丁注入开始 (全分支扫描模式)"
+          echo "==> Yaozhi 补丁注入 (全分支扫描) 开始"
           echo "==============================="
           YAOZHI_REPO="https://github.com/Yaozhil/mpv-Yaozhi.git"
           YAOZHI_DIR="yaozhi_src"
@@ -92,24 +93,22 @@ jobs:
             rm -rf "$YAOZHI_DIR"
             git clone --depth 1 -b "$br" "$YAOZHI_REPO" "$YAOZHI_DIR" 2>/dev/null
             if [ -d "$YAOZHI_DIR/build" ]; then
-              echo "==> 在分支 [$br] 找到 build/ 目录！"
+              echo "==> 在分支 [$br] 找到 build/ 目录"
               BUILD_DIR_FOUND="$YAOZHI_DIR/build"
               break
             fi
           done
           if [ -z "$BUILD_DIR_FOUND" ]; then
-            echo "==> 分支扫描失败，执行深克隆全仓库递归查找 .patch 集合..."
+            echo "==> 深克隆全仓库递归查找..."
             rm -rf "$YAOZHI_DIR"
             git clone --depth 50 "$YAOZHI_REPO" "$YAOZHI_DIR" 2>/dev/null
             BUILD_DIR_FOUND="$(find "$YAOZHI_DIR" -type d -name build 2>/dev/null | head -n1)"
-            [ -n "$BUILD_DIR_FOUND" ] && echo "==> 递归发现 build 目录: $BUILD_DIR_FOUND"
           fi
           if [ -z "$BUILD_DIR_FOUND" ]; then
             BUILD_DIR_FOUND="$(find "$YAOZHI_DIR" -maxdepth 3 -type d $ -name "patches" -o -name "patch" $ 2>/dev/null | head -n1)"
-            [ -n "$BUILD_DIR_FOUND" ] && echo "==> 找到 patches 目录: $BUILD_DIR_FOUND"
           fi
           if [ -n "$BUILD_DIR_FOUND" ] && [ -d "$BUILD_DIR_FOUND" ]; then
-            echo "==> 开始注入 Yaozhi 补丁到 mpv / ffmpeg / libplacebo..."
+            echo "==> 开始注入 Yaozhi 补丁 (mpv/ffmpeg/libplacebo)"
             for patch_dir in "$BUILD_DIR_FOUND"/*/; do
               dir_name="$(basename "$patch_dir")"
               [ ! -d "$patch_dir" ] && continue
@@ -138,31 +137,13 @@ jobs:
             done
             echo "==> 补丁注入完毕"
           else
-            echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-            echo "!!! 严重警告：找不到 Yaozhi 补丁目录，所有高级特性将缺失！"
-            echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+            echo "!!! 警告：未找到 Yaozhi 补丁目录，跳过注入 !!!"
             ls -la "$YAOZHI_DIR" 2>/dev/null
           fi
 
-      - name: Upgrade core packages to latest master HEAD
-        run: |
-          set +e
-          echo "==> 升级核心包源码到最新版本"
-          for pkg in ffmpeg mpv libplacebo libbluray; do
-            dir="src_packages/$pkg"
-            [ ! -d "$dir/.git" ] && echo "--> [$pkg] skip (no git)" && continue
-            echo "--> [$pkg] fetch latest master/main ..."
-            git -C "$dir" fetch --depth 1 origin master 2>/dev/null
-            if git -C "$dir" rev-parse FETCH_HEAD >/dev/null 2>&1; then
-              git -C "$dir" reset --hard FETCH_HEAD 2>/dev/null
-            else
-              git -C "$dir" fetch --depth 1 origin main 2>/dev/null
-              git -C "$dir" reset --hard FETCH_HEAD 2>/dev/null || true
-            fi
-            sha="$(git -C "$dir" rev-parse --short HEAD 2>/dev/null)"
-            echo "    ==> [$pkg] HEAD: $sha"
-          done
-          echo "==> 源码升级完毕"
+      # ⚠️ 重要：这里没有"Upgrade core packages"步骤！！
+      #    因为 libplacebo/ffmpeg/mpv 都锁定为旧版精确 SHA，
+      #    一旦升级回最新master，画面白点问题会复现！
 
       - name: Building mpv
         run: |
