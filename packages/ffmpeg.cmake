@@ -1,4 +1,4 @@
-# 自动构建 FFmpeg，集成 AVS3/AVS2 视频解码与 AV3A 菁彩声及硬件加速
+# 自动构建 FFmpeg，集成 AVS3/AVS2 视频解码与 AV3A 菁彩声及硬件加速（已移除不稳定且无用的 libvpl）
 ExternalProject_Add(ffmpeg
     DEPENDS
         amf-headers
@@ -30,7 +30,6 @@ ExternalProject_Add(ffmpeg
         x264
         ${ffmpeg_x265}
         libxml2
-        libvpl
         libopenmpt
         libjxl
         libplacebo
@@ -95,7 +94,6 @@ ExternalProject_Add(ffmpeg
         --enable-libmysofa
         --enable-libssh
         --enable-libsrt
-        --enable-libvpl
         --enable-libjxl
         --enable-libplacebo
         --enable-libzvbi
