@@ -23,7 +23,6 @@ ExternalProject_Add(mpv
         spirv-cross
         vapoursynth
         libsdl2
-        subrandr
         libsixel
         curl
     GIT_REPOSITORY https://github.com/mpv-player/mpv.git
@@ -39,8 +38,7 @@ ExternalProject_Add(mpv
         -Ddebug=true
         -Db_ndebug=true
         -Doptimization=3
-        -Db_lto=true
-        ${mpv_lto_mode}
+        -Db_lto=false
         -Dlibmpv=true
         -Dpdf-build=enabled
         -Dlua=enabled
@@ -56,12 +54,11 @@ ExternalProject_Add(mpv
         -Dspirv-cross=enabled
         -Dvulkan=enabled
         -Dvapoursynth=enabled
-        -Dsubrandr=enabled
         -Dsixel=enabled
         ${mpv_gl}
         -Dlibcurl=enabled
         -Dc_args='-Wno-error=int-conversion'
-    BUILD_COMMAND ${EXEC} LTO_JOB=1 PDB=1 ninja -C <BINARY_DIR>
+    BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR> -v
     INSTALL_COMMAND ""
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
