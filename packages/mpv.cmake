@@ -1,3 +1,4 @@
+# 自动构建 MPV 主程序及完整 Windows 发行打包流程
 ExternalProject_Add(mpv
     DEPENDS
         angle-headers
@@ -6,8 +7,6 @@ ExternalProject_Add(mpv
         lcms2
         libarchive
         libass
-        libbluray
-        fontconfig
         libdvdnav
         libdvdread
         libiconv
@@ -29,8 +28,7 @@ ExternalProject_Add(mpv
         curl
     GIT_REPOSITORY https://github.com/mpv-player/mpv.git
     SOURCE_DIR ${SOURCE_LOCATION}
-    GIT_REMOTE_NAME origin
-    GIT_TAG 304426c
+    GIT_CLONE_FLAGS "--filter=tree:0"
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} CONF=1 meson setup <BINARY_DIR> <SOURCE_DIR>
         --prefix=${MINGW_INSTALL_PREFIX}
@@ -62,7 +60,7 @@ ExternalProject_Add(mpv
         -Dsixel=enabled
         ${mpv_gl}
         -Dlibcurl=enabled
-        -Dc_args=-Wno-error=int-conversion
+        -Dc_args='-Wno-error=int-conversion'
     BUILD_COMMAND ${EXEC} LTO_JOB=1 PDB=1 ninja -C <BINARY_DIR>
     INSTALL_COMMAND ""
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1

@@ -1,6 +1,10 @@
+# 自动构建 Intel libvpl 硬件处理库
 ExternalProject_Add(libvpl
-    URL https://github.com/intel/libvpl/archive/refs/tags/v2.14.0.tar.gz
+    GIT_REPOSITORY https://github.com/intel/libvpl.git
     SOURCE_DIR ${SOURCE_LOCATION}
+    GIT_CLONE_FLAGS "--filter=tree:0"
+    GIT_REMOTE_NAME origin
+    GIT_TAG main
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} CONF=1 cmake -H<SOURCE_DIR> -B<BINARY_DIR>
         -G Ninja

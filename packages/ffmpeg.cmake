@@ -1,3 +1,4 @@
+# 自动构建 FFmpeg，集成 AVS3/AVS2 视频解码与 AV3A 菁彩声及硬件加速
 ExternalProject_Add(ffmpeg
     DEPENDS
         amf-headers
@@ -29,6 +30,7 @@ ExternalProject_Add(ffmpeg
         x264
         ${ffmpeg_x265}
         libxml2
+        libvpl
         libopenmpt
         libjxl
         libplacebo
@@ -38,15 +40,14 @@ ExternalProject_Add(ffmpeg
         svtav1
         dav1d
         vapoursynth
-        uavs3d
+        ${ffmpeg_uavs3d}
+        ${ffmpeg_davs2}
         rubberband
         libva
         openal-soft
     GIT_REPOSITORY https://github.com/FFmpeg/FFmpeg.git
     SOURCE_DIR ${SOURCE_LOCATION}
-    GIT_REMOTE_NAME origin
-    GIT_TAG 2576e09
-    GIT_CLONE_FLAGS "--sparse"
+    GIT_CLONE_FLAGS "--sparse --filter=tree:0"
     GIT_CLONE_POST_COMMAND "sparse-checkout set --no-cone /* !tests/ref/fate"
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} CONF=1 <SOURCE_DIR>/configure
@@ -87,12 +88,14 @@ ExternalProject_Add(ffmpeg
         --enable-libsvtav1
         --enable-libdav1d
         --enable-libuavs3d
+        --enable-libdavs2
         --enable-libzimg
         --enable-openssl
         --enable-libxml2
         --enable-libmysofa
         --enable-libssh
         --enable-libsrt
+        --enable-libvpl
         --enable-libjxl
         --enable-libplacebo
         --enable-libzvbi
@@ -112,7 +115,7 @@ ExternalProject_Add(ffmpeg
         --disable-videotoolbox
         --disable-decoder=libaom_av1
         ${ffmpeg_lto}
-        --extra-cflags=-Wno-error=int-conversion
+        --extra-cflags='-Wno-error=int-conversion'
         "--extra-libs='${ffmpeg_extra_libs}'"
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
@@ -120,3 +123,4 @@ ExternalProject_Add(ffmpeg
 )
 
 force_rebuild_git(ffmpeg)
+cleanup(ffmpeg install)
