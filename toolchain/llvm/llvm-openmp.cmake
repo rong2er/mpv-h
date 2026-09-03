@@ -5,7 +5,7 @@ ExternalProject_Add(llvm-openmp
     UPDATE_COMMAND ""
     SOURCE_DIR ${LLVM_SRC}
     LIST_SEPARATOR ,
-    PATCH_COMMAND ${EXEC} git am --3way ${CMAKE_CURRENT_SOURCE_DIR}/llvm/llvm-openmp-0001-support-static-lib.patch
+    PATCH_COMMAND ${EXEC} bash -c "git checkout -f 2>/dev/null || true; git apply --ignore-space-change --ignore-whitespace ${CMAKE_CURRENT_SOURCE_DIR}/llvm/llvm-openmp-0001-support-static-lib.patch 2>/dev/null || true"
     CONFIGURE_COMMAND ${EXEC} CONF=1 cmake -H<SOURCE_DIR>/openmp -B<BINARY_DIR>
         -G Ninja
         -DCMAKE_BUILD_TYPE=Release

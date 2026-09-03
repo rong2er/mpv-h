@@ -2,7 +2,7 @@ ExternalProject_Add(libdvdread
     DEPENDS libdvdcss
     GIT_REPOSITORY https://code.videolan.org/videolan/libdvdread.git
     SOURCE_DIR ${SOURCE_LOCATION}
-    GIT_CLONE_FLAGS "--filter=tree:0"
+    GIT_CLONE_FLAGS "--depth=1"
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} sed -i [['/^if import/,/endif/d']] <SOURCE_DIR>/meson.build
     COMMAND ${EXEC} meson setup <BINARY_DIR> <SOURCE_DIR>

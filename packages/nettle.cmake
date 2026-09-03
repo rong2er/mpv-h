@@ -2,7 +2,7 @@ ExternalProject_Add(nettle
     GIT_REPOSITORY https://gitlab.com/shinchiro/nettle.git
     SOURCE_DIR ${SOURCE_LOCATION}
     GIT_CLONE_FLAGS "--filter=tree:0"
-    PATCH_COMMAND ${EXEC} git am --3way ${CMAKE_CURRENT_SOURCE_DIR}/nettle-*.patch
+    PATCH_COMMAND ${EXEC} git checkout -f && git apply --ignore-space-change --ignore-whitespace ${CMAKE_CURRENT_SOURCE_DIR}/nettle-0001-skip-compiling-testsuite-and-examples.patch
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} autoreconf -fi && CONF=1 <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}

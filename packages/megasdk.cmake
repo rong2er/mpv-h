@@ -11,7 +11,7 @@ ExternalProject_Add(megasdk
     SOURCE_DIR ${SOURCE_LOCATION}
     GIT_CLONE_FLAGS "--filter=tree:0"
     UPDATE_COMMAND ""
-    PATCH_COMMAND ${EXEC} git am --3way ${CMAKE_CURRENT_SOURCE_DIR}/megasdk-*.patch
+    PATCH_COMMAND ${EXEC} git checkout -f && git apply --ignore-space-change --ignore-whitespace ${CMAKE_CURRENT_SOURCE_DIR}/megasdk-0001-megacli-remove-warn-never-print-file-attributes.patch ${CMAKE_CURRENT_SOURCE_DIR}/megasdk-0002-fix-compile.patch
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/autogen.sh && CONF=1 <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}

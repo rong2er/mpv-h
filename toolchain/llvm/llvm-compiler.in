@@ -32,4 +32,10 @@ else
     fi
 fi
 
+for arg in "$@"; do
+    if [ "$arg" == "-cc1" ]; then
+        exec "$PROG" "$@"
+    fi
+done
+
 $CCACHE "$PROG" $LTO_FLAGS $ARCH_FLAGS "$@" $FLAGS $CLANG_GC @CLANG_FLAGS@ @linker@ $SKIP_OPT

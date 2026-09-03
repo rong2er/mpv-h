@@ -9,8 +9,7 @@ ExternalProject_Add(fontconfig
     UPDATE_COMMAND ""
     GIT_REMOTE_NAME origin
     GIT_TAG main
-    GIT_CLONE_FLAGS "--filter=tree:0"
-    PATCH_COMMAND ${EXEC} git am --3way ${CMAKE_CURRENT_SOURCE_DIR}/fontconfig-*.patch
+    PATCH_COMMAND ${EXEC} git checkout -f && git apply --ignore-space-change --ignore-whitespace ${CMAKE_CURRENT_SOURCE_DIR}/fontconfig-0001-Custom-changes-for-mpv-builds.patch ${CMAKE_CURRENT_SOURCE_DIR}/fontconfig-0002-Do-not-use-dirent.h.patch
     CONFIGURE_COMMAND ""
     COMMAND ${EXEC} sed -i "s/both_libraries/library/g" <SOURCE_DIR>/src/meson.build
     COMMAND ${EXEC} CONF=1 meson setup <BINARY_DIR> <SOURCE_DIR>
