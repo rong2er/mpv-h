@@ -18,7 +18,7 @@ set(EXPORT
     TARGET_SYS=Windows
     BUILDMODE=static
     FILE_T=luajit.exe
-    CFLAGS='-DUNICODE'
+    CFLAGS='-DUNICODE -D_WIN32_WINNT=0x0602'
     XCFLAGS='-DLUAJIT_ENABLE_LUA52COMPAT ${DISABLE_JIT}'
     PREFIX=${MINGW_INSTALL_PREFIX} Q="
 )
@@ -34,7 +34,7 @@ ExternalProject_Add(luajit
     GIT_CLONE_FLAGS "--filter=tree:0"
     GIT_REMOTE_NAME origin
     GIT_TAG v2.1-agentzh
-    PATCH_COMMAND ${EXEC} git checkout -f && git apply --ignore-space-change --ignore-whitespace ${CMAKE_CURRENT_SOURCE_DIR}/luajit-0001-add-win32-utf-8-filesystem-functions.patch
+    PATCH_COMMAND ${EXEC} git checkout -f && git clean -df && git apply --ignore-space-change --ignore-whitespace ${CMAKE_CURRENT_SOURCE_DIR}/luajit-0001-add-win32-utf-8-filesystem-functions.patch
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ${MAKE} -C <SOURCE_DIR>/src
